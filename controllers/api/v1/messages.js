@@ -1,4 +1,4 @@
-const Message = require('../../models/api/v1/Message');
+const Message = require('../../../models/api/v1/message');
 
 const create = (req, res) => {
 

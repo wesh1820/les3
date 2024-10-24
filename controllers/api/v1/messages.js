@@ -1,32 +1,54 @@
+const express = require('express');
+const router = express.Router();
 const Message = require('../../../models/api/v1/message');
 
-const create = (req, res) => {
+// Create a new message
+const create = async (req, res) => {
+    try {
+        const { text, user } = req.body.message;
 
-    const text = req.body.message.text;
-    const user = req.body.message.user;
+        if (!text || !user) {
+            return res.status(400).json({
+                status: 'error',
+                message: 'User and text are required.',
+            });
+        }
 
-    const m = new Message({ user: user, text: text });
-    m.save().then(() => {
+        const message = new Message({ user, text });
+        await message.save();
+
         res.json({
             status: 'success',
-            data: {
-                message: m,
-            }
-          });
-    });
-  };
-
-const index = async (req, res) => {
-    const messages = await Message.find();
-    res.json({
-        status: 'success',
-        data: {
-            messages: messages,
-        }
-    });
+            data: { message },
+        });
+    } catch (err) {
+        res.status(500).json({
+            status: 'error',
+            message: 'Failed to save message',
+            error: err.message,
+        });
+    }
 };
 
-module.exports = {
-    create,
-    index,
-}
+// Get all messages
+const index = async (req, res) => {
+    try {
+        const messages = await Message.find();
+        res.json({
+            status: 'success',
+            data: { messages },
+        });
+    } catch (err) {
+        res.status(500).json({
+            status: 'error',
+            message: 'Failed to retrieve messages',
+            error: err.message,
+        });
+    }
+};
+
+// Stel de routes in
+router.post('/', create);
+router.get('/', index);
+
+module.exports = router;

@@ -2,9 +2,10 @@ const Message = require('../../../models/api/v1/message');
 
 // Functie voor het aanmaken van een nieuw bericht
 const create = (req, res) => {
-    const { text, user } = req.body.message;
+    console.log('Request body:', req.body); // Voor debugging
+    const { user, text } = req.body;
 
-    if (!text || !user) {
+    if (!user || !text) {
         return res.status(400).json({
             status: 'error',
             message: 'User and text are required'
@@ -17,12 +18,11 @@ const create = (req, res) => {
         .then((message) => {
             res.json({
                 status: 'success',
-                data: {
-                    message
-                }
+                data: { message }
             });
         })
         .catch(err => {
+            console.error('Error saving message:', err);
             res.status(500).json({
                 status: 'error',
                 message: 'Error creating message',
@@ -37,9 +37,7 @@ const index = async (req, res) => {
         const messages = await Message.find();
         res.json({
             status: 'success',
-            data: {
-                messages
-            }
+            data: { messages }
         });
     } catch (err) {
         res.status(500).json({
